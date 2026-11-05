@@ -14,9 +14,9 @@ services:
   ubuntu:
     # Option A: published image as-is
     image: ghcr.io/patrickwolf/tailscale-ubuntu:latest
-    # Option B: build your own image with extra software (see ../Dockerfile).
+    # Option B: build your own image with extra software (see Dockerfile).
     # Comment out the "image:" line above and uncomment these two lines:
-    # build: { context: .., dockerfile: Dockerfile }
+    # build: .
     # image: my-tailscale-ubuntu
     container_name: tailscale-ubuntu
     hostname: tailscale-ubuntu
