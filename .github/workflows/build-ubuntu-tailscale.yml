@@ -1,0 +1,59 @@
+name: Build Ubuntu Tailscale image
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch latest Tailscale release
+        id: version
+        shell: bash
+        run: |
+          tag="$(curl --fail --silent --show-error https://api.github.com/repos/tailscale/tailscale/releases/latest | jq -r '.tag_name')"
+          if [[ -z "$tag" || "$tag" == "null" ]]; then
+            echo "Failed to determine the latest Tailscale release tag" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check out Tailscale
+        uses: actions/checkout@v4
+        with:
+          repository: tailscale/tailscale
+          ref: ${{ steps.version.outputs.tag }}
+          fetch-depth: 1
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install mkctr
+        shell: bash
+        run: |
+          go install github.com/tailscale/mkctr@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        run: >-
+          mkctr
+          --base="ubuntu:latest"
+          --gopaths="tailscale.com/cmd/tailscale:/usr/local/bin/tailscale,tailscale.com/cmd/tailscaled:/usr/local/bin/tailscaled"
+          --repos="ghcr.io/${{ github.repository_owner }}/tailscale-ubuntu"
+          --tags="latest,${{ steps.version.outputs.tag }}"
+          --push
