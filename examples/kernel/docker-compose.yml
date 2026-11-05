@@ -1,0 +1,48 @@
+# Kernel networking.
+# Creates a real tailscale0 interface, so everything in the container can
+# reach other tailnet devices by IP/name, and the container can act as an
+# exit node or subnet router. Needs /dev/net/tun and NET_ADMIN.
+#
+# Usage:
+#   1. cp .env.example .env   and put your auth key in .env
+#   2. docker compose up -d
+#   3. docker exec -it tailscale-ubuntu bash
+#
+# Pick ONE image option.
+services:
+  ubuntu:
+    # Option A: published image as-is
+    image: ghcr.io/patrickwolf/tailscale-ubuntu:latest
+    # Option B: build your own image with extra software (see ../Dockerfile).
+    # Comment out the "image:" line above and uncomment these two lines:
+    # build: { context: .., dockerfile: Dockerfile }
+    # image: my-tailscale-ubuntu
+    container_name: tailscale-ubuntu
+    hostname: tailscale-ubuntu
+    environment:
+      # Auth key from https://login.tailscale.com/admin/settings/keys
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=tailscale-ubuntu
+      # Enable Tailscale SSH (then: ssh root@tailscale-ubuntu). Requires an "ssh"
+      # rule in your tailnet policy. Comment out to disable.
+      - TS_EXTRA_ARGS=--ssh
+      # Optional: don't use the tailnet DNS inside the container.
+      # - TS_ACCEPT_DNS=false
+      # Optional: advertise this node as an exit node or subnet router.
+      # - TS_EXTRA_ARGS=--ssh --advertise-exit-node
+      # - TS_ROUTES=192.168.1.0/24
+      - TS_USERSPACE=false
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - net_raw
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - home:/root
+    restart: unless-stopped
+
+volumes:
+  tailscale-state:
+  home:
