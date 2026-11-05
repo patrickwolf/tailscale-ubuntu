@@ -10,5 +10,16 @@ jobs:
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api "users/${{ github.repository_owner }}/packages/container/tailscale-ubuntu/versions" --paginate \
-            --jq '.[] | "\(.id) \(.created_at) \(.name[0:19]) [\(.metadata.container.tags | join(","))]"'
+          set -euo pipefail
+          pkg="users/${{ github.repository_owner }}/packages/container/tailscale-ubuntu"
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin >/dev/null
+          img="ghcr.io/${{ github.repository_owner }}/tailscale-ubuntu"
+          idx="$(docker buildx imagetools inspect "$img:latest" --raw)"
+          keep="$(docker buildx imagetools inspect "$img:latest" --format '{{.Manifest.Digest}}')"
+          keep="$keep $(jq -r '.manifests[].digest' <<<"$idx")"
+          echo "KEEP: $keep"
+          [ "$(wc -w <<<"$keep")" -ge 5 ] || { echo "unexpected keep set"; exit 1; }
+          gh api "$pkg/versions" --paginate --jq '.[] | "\(.id) \(.name)"' | while read id name; do
+            if grep -qw "$name" <<<"$keep"; then echo "keep $id $name"; else echo "delete $id $name"; gh api -X DELETE "$pkg/versions/$id"; fi
+          done
+          gh api "$pkg/versions" --paginate --jq '.[] | "\(.id) \(.name[0:19]) [\(.metadata.container.tags | join(","))]"'
