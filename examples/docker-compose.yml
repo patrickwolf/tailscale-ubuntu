@@ -1,15 +1,16 @@
-# Example: Tailscale (Ubuntu-based image) as a sidecar for another container.
-# nginx shares the Tailscale network namespace, so it is reachable on your
-# tailnet as http://tailscale-nginx (no ports published on the host).
+# Example: a single Ubuntu-based Tailscale container.
+# It joins your tailnet as "tailscale-ubuntu" and you can open a shell in it
+# to install and run whatever you need.
 #
 # Usage:
 #   1. cp .env.example .env   and put your auth key in .env
 #   2. docker compose up -d
+#   3. docker exec -it tailscale-ubuntu bash
 services:
   tailscale:
     image: ghcr.io/patrickwolf/tailscale-ubuntu:latest
-    container_name: tailscale
-    hostname: tailscale-nginx
+    container_name: tailscale-ubuntu
+    hostname: tailscale-ubuntu
     environment:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
@@ -18,12 +19,4 @@ services:
     cap_add:
       - net_admin
       - net_raw
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx_server
-    network_mode: service:tailscale
-    depends_on:
-      - tailscale
     restart: unless-stopped
