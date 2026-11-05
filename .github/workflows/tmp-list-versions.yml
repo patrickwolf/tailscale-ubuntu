@@ -1,0 +1,14 @@
+name: tmp list versions
+on: workflow_dispatch
+permissions:
+  packages: write
+  contents: read
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "users/${{ github.repository_owner }}/packages/container/tailscale-ubuntu/versions" --paginate \
+            --jq '.[] | "\(.id) \(.created_at) \(.name[0:19]) [\(.metadata.container.tags | join(","))]"'
