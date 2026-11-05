@@ -43,4 +43,8 @@ A ready-to-use example based on [Tailscale's official Docker Compose guide](http
    ```
 4. The container appears as `tailscale-ubuntu` in your [Machines](https://login.tailscale.com/admin/machines) list. Open a shell with `docker exec -it tailscale-ubuntu bash`.
 
-The auth key stays in `.env` (git-ignored) and node state persists in `./tailscale-state`, so the container stays logged in across restarts.
+The auth key stays in `.env` (git-ignored). The Tailscale state (`/var/lib/tailscale`) and the home directory (`/root`) are stored in named volumes, so the container stays logged in and keeps your files across restarts and recreation. The container runs as `root`.
+
+### Adding your own software
+
+Packages installed with `apt` inside a running container are lost when it is recreated. To bake them in, edit [`examples/Dockerfile`](examples/Dockerfile), then in `docker-compose.yml` comment out the `image:` line under Option A and uncomment the `build: .` and `image: my-tailscale-ubuntu` lines (Option B). Run `docker compose up -d --build`.
