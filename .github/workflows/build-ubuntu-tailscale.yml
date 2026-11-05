@@ -76,11 +76,7 @@ jobs:
           REPOS: ${{ env.IMAGE }}
           BASE: ${{ env.BASE }}
           TAGS: latest,${{ steps.v.outputs.tag }}
-          ANNOTATIONS: >-
-            org.opencontainers.image.source=https://github.com/${{ github.repository }},
-            org.opencontainers.image.description=Tailscale on Ubuntu,
-            org.opencontainers.image.version=${{ steps.v.outputs.tag }},
-            org.opencontainers.image.base.digest=${{ steps.v.outputs.digest }}
+          ANNOTATIONS: org.opencontainers.image.source=https://github.com/${{ github.repository }},org.opencontainers.image.description=Tailscale on Ubuntu,org.opencontainers.image.version=${{ steps.v.outputs.tag }},org.opencontainers.image.base.digest=${{ steps.v.outputs.digest }}
         run: ./build_docker.sh
 
       - name: Summary
