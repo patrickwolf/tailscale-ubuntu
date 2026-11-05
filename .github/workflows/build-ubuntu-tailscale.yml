@@ -57,3 +57,16 @@ jobs:
           --repos="ghcr.io/${{ github.repository_owner }}/tailscale-ubuntu"
           --tags="latest,${{ steps.version.outputs.tag }}"
           --push
+
+      - name: Summarize versions
+        shell: bash
+        run: |
+          docker pull ubuntu:latest >/dev/null
+          ubuntu_version="$(docker run --rm ubuntu:latest sh -c '. /etc/os-release && echo "$PRETTY_NAME"')"
+          {
+            echo "### Image published"
+            echo "- Image: \`ghcr.io/${{ github.repository_owner }}/tailscale-ubuntu\`"
+            echo "- Tags: \`latest\`, \`${{ steps.version.outputs.tag }}\`"
+            echo "- Tailscale: \`${{ steps.version.outputs.tag }}\`"
+            echo "- Ubuntu base: ${ubuntu_version}"
+          } >> "$GITHUB_STEP_SUMMARY"
