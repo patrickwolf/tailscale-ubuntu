@@ -76,7 +76,6 @@ jobs:
           REPOS: ${{ env.IMAGE }}
           BASE: ${{ env.BASE }}
           TAGS: latest,${{ steps.v.outputs.tag }}
-          GOARCH: amd64,arm64
           ANNOTATIONS: >-
             org.opencontainers.image.source=https://github.com/${{ github.repository }},
             org.opencontainers.image.description=Tailscale on Ubuntu,
