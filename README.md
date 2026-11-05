@@ -17,7 +17,7 @@ Each image carries OCI annotations with the Tailscale version and the Ubuntu bas
 
 ## Examples
 
-Both examples run a single container as `root`, keep the Tailscale state (`/var/lib/tailscale`) and the home directory (`/root`) in named volumes, and include Tailscale SSH (`TS_EXTRA_ARGS=--ssh`; remove it to disable, and add an `ssh` rule to your tailnet policy).
+Each example folder is self-contained (compose file, `Dockerfile`, `.env.example`), so you can copy just one. Both run a single container as `root`, keep the Tailscale state (`/var/lib/tailscale`) and the home directory (`/root`) in named volumes, and include Tailscale SSH (`TS_EXTRA_ARGS=--ssh`; remove it to disable, and add an `ssh` rule to your tailnet policy).
 
 | Example | Use when |
 | --- | --- |
@@ -35,4 +35,4 @@ The container appears as `tailscale-ubuntu` in your [Machines](https://login.tai
 
 ### Adding your own software
 
-Packages installed with `apt` in a running container are lost when it is recreated. Edit [`examples/Dockerfile`](examples/Dockerfile), then in the compose file comment out the `image:` line (Option A) and uncomment the `build:` and `image: my-tailscale-ubuntu` lines (Option B). Run `docker compose up -d --build`.
+Packages installed with `apt` in a running container are lost when it is recreated. Edit the `Dockerfile` in your chosen example folder, then in its compose file comment out the `image:` line (Option A) and uncomment the `build:` and `image: my-tailscale-ubuntu` lines (Option B). Run `docker compose up -d --build`.
