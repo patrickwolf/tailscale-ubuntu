@@ -41,6 +41,6 @@ A ready-to-use example based on [Tailscale's official Docker Compose guide](http
    ```bash
    docker compose up -d
    ```
-4. The container appears as `tailscale-nginx` in your [Machines](https://login.tailscale.com/admin/machines) list, and nginx is reachable at `http://tailscale-nginx` from your tailnet.
+4. The container appears as `tailscale-ubuntu` in your [Machines](https://login.tailscale.com/admin/machines) list. Open a shell with `docker exec -it tailscale-ubuntu bash`.
 
 The auth key stays in `.env` (git-ignored) and node state persists in `./tailscale-state`, so the container stays logged in across restarts.
