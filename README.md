@@ -26,3 +26,21 @@ The Ubuntu base and Tailscale versions used for each build are listed in the sum
 ## Binaries
 
 `tailscale` and `tailscaled` are installed in `/usr/local/bin`.
+
+## Docker Compose example with authentication
+
+A ready-to-use example based on [Tailscale's official Docker Compose guide](https://tailscale.com/kb/1282/docker) is in [`examples/`](examples/):
+
+1. Generate an [auth key](https://login.tailscale.com/admin/settings/keys) in the Tailscale admin console.
+2. Copy the env file and add your key:
+   ```bash
+   cd examples
+   cp .env.example .env   # then edit TS_AUTHKEY
+   ```
+3. Start it:
+   ```bash
+   docker compose up -d
+   ```
+4. The container appears as `tailscale-nginx` in your [Machines](https://login.tailscale.com/admin/machines) list, and nginx is reachable at `http://tailscale-nginx` from your tailnet.
+
+The auth key stays in `.env` (git-ignored) and node state persists in `./tailscale-state`, so the container stays logged in across restarts.
