@@ -6,6 +6,8 @@ An Ubuntu-based [Tailscale](https://tailscale.com) container image, built with T
 docker pull ghcr.io/patrickwolf/tailscale-ubuntu:latest
 ```
 
+Unlike plain `ubuntu`, the image includes the CA certificate bundle (`/etc/ssl/certs/ca-certificates.crt`, from Ubuntu's `ca-certificates` package), so HTTPS `tailscale serve`, `tailscale cert` and HTTPS clients such as `curl` work out of the box.
+
 ## Tags
 
 | Tag | Meaning |
