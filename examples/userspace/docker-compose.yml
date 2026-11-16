@@ -1,7 +1,7 @@
 # Userspace networking (the official image default).
 # No extra privileges needed. Tailscale devices can reach this container, but
 # programs INSIDE the container cannot open connections to other tailnet
-# devices directly (use the SOCKS5/HTTP proxy, see README). Good for scripts
+# devices directly. Good for scripts
 # that only need internet access and want to be reachable over Tailscale.
 #
 # Usage:

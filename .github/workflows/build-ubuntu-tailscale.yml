@@ -68,6 +68,14 @@ jobs:
           ref: ${{ steps.v.outputs.tag }}
           fetch-depth: 1
 
+      # Without a CA bundle, HTTPS `tailscale serve` (Let's Encrypt), `tailscale cert` and `curl https` fail with x509: certificate signed by unknown authority.
+      - name: Get CA bundle from Ubuntu's ca-certificates
+        if: steps.check.outputs.build == 'true'
+        shell: bash
+        run: |
+          docker run --rm "$BASE" sh -c 'apt-get update -qq && apt-get install -y -qq --no-install-recommends ca-certificates >/dev/null && cat /etc/ssl/certs/ca-certificates.crt' > "$RUNNER_TEMP/ca-certificates.crt"
+          test -s "$RUNNER_TEMP/ca-certificates.crt"
+
       - name: Build and push image (official Tailscale build script)
         if: steps.check.outputs.build == 'true'
         shell: bash
@@ -76,6 +84,7 @@ jobs:
           REPOS: ${{ env.IMAGE }}
           BASE: ${{ env.BASE }}
           TAGS: latest,${{ steps.v.outputs.tag }}
+          FILES: ${{ runner.temp }}/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt
           ANNOTATIONS: org.opencontainers.image.source=https://github.com/${{ github.repository }},org.opencontainers.image.description=Tailscale on Ubuntu,org.opencontainers.image.version=${{ steps.v.outputs.tag }},org.opencontainers.image.base.digest=${{ steps.v.outputs.digest }}
         run: ./build_docker.sh
 
